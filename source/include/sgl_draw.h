@@ -475,6 +475,18 @@ void sgl_draw_line(sgl_surf_t *surf, sgl_area_t *area, sgl_area_t *coords, sgl_d
 void sgl_draw_fill_arc(sgl_surf_t *surf, sgl_area_t *area, sgl_draw_arc_t *desc);
 
 
+/**
+ * @brief calculate a point color by bilinear interpolate
+ * @param buffer point to 2x2 pixel matrix
+ * @param w width of buffer
+ * @param h height of buffer
+ * @param fx x coordinate of point
+ * @param fy y coordinate of point
+ * @return point color
+ */
+sgl_color_t sgl_biln(const sgl_color_t *buffer, int16_t w, int16_t h, int32_t fx, int32_t fy);
+
+
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif

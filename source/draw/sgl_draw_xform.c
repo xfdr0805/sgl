@@ -22,3 +22,61 @@
  * SOFTWARE.
  */
 
+#include <sgl_core.h>
+#include <sgl_log.h>
+#include <sgl_draw.h>
+#include <sgl_math.h>
+#include <string.h>
+
+
+/**
+ * @brief calculate a point color by bilinear interpolate
+ * @param buffer point to 2x2 pixel matrix
+ * @param w width of buffer
+ * @param h height of buffer
+ * @param fx x coordinate of point
+ * @param fy y coordinate of point
+ * @return point color
+ */
+sgl_color_t sgl_biln(const sgl_color_t *buffer, int16_t w, int16_t h, int32_t fx, int32_t fy)
+{
+    sgl_color_t ret;
+    int32_t max_x = (((int32_t)w) - 1) << SGL_FIXED_SHIFT;
+    int32_t max_y = (((int32_t)h) - 1) << SGL_FIXED_SHIFT;
+    fx = fx < 0 ? 0 : (fx > max_x ? max_x : fx);
+    fy = fy < 0 ? 0 : (fy > max_y ? max_y : fy);
+
+    const int32_t x0 = fx >> SGL_FIXED_SHIFT;
+    const int32_t y0 = fy >> SGL_FIXED_SHIFT;
+    const int32_t dx = fx & SGL_FIXED_MASK;
+    const int32_t dy = fy & SGL_FIXED_MASK;
+    const int32_t dx1 = SGL_FIXED_ONE - dx;
+    const int32_t dy1 = SGL_FIXED_ONE - dy;
+    const int32_t point = (y0 * w) + x0;
+
+    const sgl_color_t p00 = buffer[point];
+    const sgl_color_t p01 = buffer[point + 1];
+    const sgl_color_t p10 = buffer[point + w];
+    const sgl_color_t p11 = buffer[point + w + 1];
+
+    const uint8_t r00 = p00.ch.red;
+    const uint8_t r01 = p01.ch.red;
+    const uint8_t r10 = p10.ch.red;
+    const uint8_t r11 = p11.ch.red;
+
+    const uint8_t g00 = p00.ch.green;
+    const uint8_t g01 = p01.ch.green;
+    const uint8_t g10 = p10.ch.green;
+    const uint8_t g11 = p11.ch.green;
+
+    const uint8_t b00 = p00.ch.blue;
+    const uint8_t b01 = p01.ch.blue;
+    const uint8_t b10 = p10.ch.blue;
+    const uint8_t b11 = p11.ch.blue;
+
+    ret.ch.red = ((r00 * dx1 * dy1) + (r01 * dx * dy1) + (r10 * dx1 * dy) + (r11 * dx * dy)) >> (2 * SGL_FIXED_SHIFT);
+    ret.ch.green = ((g00 * dx1 * dy1) + (g01 * dx * dy1) + (g10 * dx1 * dy) + (g11 * dx * dy)) >> (2 * SGL_FIXED_SHIFT);
+    ret.ch.blue = ((b00 * dx1 * dy1) + (b01 * dx * dy1) + (b10 * dx1 * dy) + (b11 * dx * dy)) >> (2 * SGL_FIXED_SHIFT);
+
+    return ret;
+}
