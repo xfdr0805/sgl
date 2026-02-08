@@ -118,11 +118,11 @@ static void sgl_ext_img_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_event
     sgl_area_t clip = SGL_AREA_INVALID;
     sgl_ext_img_t *ext_img = (sgl_ext_img_t*)obj;
     const sgl_pixmap_t *pixmap = &ext_img->pixmap[ext_img->pixmap_idx];
-    uint32_t read_addr = pixmap->bitmap.addr;
+    uintptr_t read_addr = pixmap->bitmap.addr;
     uint8_t pix_byte = sgl_pixmal_get_bytes_per_pixel(pixmap);
     sgl_color_t tmp_color, *buf = NULL, *blend = NULL;
-    uint32_t pix_value = 0;
-    uint32_t offset = 0;
+    size_t pix_value = 0;
+    size_t offset = 0;
 
     sgl_area_t area = {
         .x1 = obj->coords.x1,
