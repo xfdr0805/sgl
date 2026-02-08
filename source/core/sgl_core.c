@@ -677,8 +677,10 @@ int sgl_init(void)
     }
 #if (CONFIG_SGL_FBDEV_RUNTIME_ROTATION)
     sgl_system.angle = 0;
+    sgl_system.next_angle = 0;
 #endif
 #endif
+
     /* create event queue */
     if (sgl_event_queue_init()) {
         SGL_LOG_ERROR("sgl_init: event queue init failed");
