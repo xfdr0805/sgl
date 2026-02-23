@@ -44,15 +44,16 @@ static void sgl_win_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_event_t *
     bg.y1 -= obj->radius;
 
     if (evt->type == SGL_EVENT_DRAW_MAIN) {
-        sgl_obj_set_pos(body, obj->coords.x1, obj->coords.y1 - win->title_h + obj->border);
         sgl_draw_rect(surf, &obj->area, &bg, &win->bg);
+        sgl_obj_set_pos(body, obj->coords.x1, obj->coords.y1 - win->title_h + obj->border);
+        sgl_obj_clear_dirty(body);
     }
     else if (evt->type == SGL_EVENT_DRAW_INIT) {
         exit_r  = win->title_h / 2;
         exit_cx = sgl_obj_get_width(obj) - exit_r - exit_r / 2;
         exit_cy = win->title_h / 2 - exit_r / 2 + 1;
 
-        sgl_obj_set_size(body, sgl_obj_get_width(obj), sgl_obj_get_height(obj));
+        sgl_obj_set_size(body, sgl_obj_get_width(obj), win->title_h + obj->border + obj->radius);
         sgl_obj_set_pos(body, obj->coords.x1, obj->coords.y1 - win->title_h + obj->border);
         sgl_rect_set_border_width(body, obj->border);
         sgl_rect_set_border_color(body, win->bg.border_color);

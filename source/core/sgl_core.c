@@ -945,6 +945,35 @@ void sgl_obj_free(sgl_obj_t *obj)
 
 
 /**
+ * @brief  Clear all dirty areas of the object and its children.
+ * @param[in] obj  The object to clear.
+ * @return  None
+ * @note   This function is used to clear all dirty areas of the object and its children.
+ */
+void sgl_obj_clear_all_dirty(sgl_obj_t *obj)
+{
+    SGL_ASSERT(obj != NULL);
+	sgl_obj_t *stack[SGL_OBJ_DEPTH_MAX];
+    int top = 0;
+    stack[top++] = obj;
+
+    while (top > 0) {
+		SGL_ASSERT(top < SGL_OBJ_DEPTH_MAX);
+		obj = stack[--top];
+        obj->dirty = 0;
+
+		if (obj->sibling != NULL) {
+			stack[top++] = obj->sibling;
+		}
+
+		if (obj->child != NULL) {
+			stack[top++] = obj->child;
+		}
+    }
+}
+
+
+/**
  * @brief delete object
  * @param obj point to object
  * @return none
