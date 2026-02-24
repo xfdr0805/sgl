@@ -54,7 +54,7 @@ typedef void (*sgl_painter_cb_t)(sgl_surf_t *surf, sgl_area_t *area, sgl_obj_t* 
  * @brief sgl canvas struct
  * @obj: sgl general object
  * @painter: pointer to canvas painter function
- * @desc: pointer to canvas draw descriptor
+ * @priv: pointer to canvas private data
  */
 typedef struct sgl_canvas {
     sgl_obj_t  obj;
