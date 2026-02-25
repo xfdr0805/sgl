@@ -44,7 +44,7 @@ static void sgl_slider_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_event_
     if(evt->type == SGL_EVENT_DRAW_MAIN) {
         if(slider->direct == SGL_DIRECT_HORIZONTAL) {
             knob_r = h / 2 - 1;
-            thickness = sgl_min(slider->thickness, knob_r);
+            thickness = sgl_max(slider->thickness, knob_r);
             bar.x1 = obj->coords.x1 + knob_r;
             bar.x2 = obj->coords.x2 - knob_r;
             bar.y1 = obj->coords.y1 + (h - thickness) / 2;
