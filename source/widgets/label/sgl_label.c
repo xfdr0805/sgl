@@ -54,10 +54,13 @@ static void sgl_label_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_event_t
 
         align_pos = sgl_get_text_pos(&obj->coords, label->font, label->text, 0, (sgl_align_type_t)label->align);
 
+#if (CONFIG_SGL_LABEL_ROTATION)
         if (label->rota == 0) {
+#endif 
             sgl_draw_string(surf, &obj->area, align_pos.x + label->transform.offset.offset_x, 
                                               align_pos.y + label->transform.offset.offset_y, 
                                               label->text, label->color, label->alpha, label->font);
+#if (CONFIG_SGL_LABEL_ROTATION)
         }
         else {
             const int16_t width = obj->area.x2 - obj->area.x1 + 1;
@@ -91,6 +94,7 @@ static void sgl_label_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_event_t
 
             sgl_free(temp_buf);
         }
+#endif
     }
 }
 
