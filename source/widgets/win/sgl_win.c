@@ -87,7 +87,7 @@ static void sgl_win_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_event_t *
         sgl_circle_set_color(exit, sgl_rgb(255, 90, 80));
         sgl_circle_set_border_width(exit, 0);
         sgl_circle_set_alpha(exit, win->bg.alpha);
-        sgl_obj_set_event_cb(exit, win_exit_cb, (size_t)win);
+        sgl_obj_set_event_cb(exit, win_exit_cb, win);
     }
     else if (evt->type == SGL_EVENT_DESTROYED) {
         sgl_obj_set_destroyed(win->body);

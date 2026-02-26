@@ -88,7 +88,7 @@ typedef struct sgl_event_pos {
 
 typedef struct sgl_event {
     struct sgl_obj   *obj;
-    size_t           param;
+    void             *param;
     sgl_event_pos_t  pos;
     uint16_t         type;
     uint16_t         distance;

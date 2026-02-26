@@ -388,7 +388,7 @@ typedef struct sgl_obj {
     sgl_area_t      area;
     sgl_area_t      coords;
     void            (*event_fn)(sgl_event_t *e);
-    size_t          event_data;
+    void            *event_data;
     void            (*construct_fn)(sgl_surf_t *surf, struct sgl_obj *obj, sgl_event_t *event);
     struct sgl_obj  *parent;
     struct sgl_obj  *child;
@@ -1609,7 +1609,7 @@ static inline sgl_area_t sgl_obj_get_fill_rect(sgl_obj_t *obj)
  * @param data: event callback function data
  * @return none
  */
-static inline void sgl_obj_set_event_cb(sgl_obj_t *obj, void (*event_fn)(sgl_event_t *e), size_t data)
+static inline void sgl_obj_set_event_cb(sgl_obj_t *obj, void (*event_fn)(sgl_event_t *e), void *data)
 {
     SGL_ASSERT(obj != NULL);
     obj->event_fn = event_fn;
