@@ -125,7 +125,7 @@ static void sgl_dropdown_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_even
     else if (evt->type == SGL_EVENT_MOVE_DOWN) {
 
     }
-    else if (evt->type == SGL_EVENT_PRESSED) {
+    else if (evt->type == SGL_EVENT_PRESSED || evt->type == SGL_EVENT_CLICKED) {
         dropdown->expand_h = dropdown->font->font_height * sgl_min(10, dropdown->option_num);
 
         if (dropdown->is_open) {
@@ -181,6 +181,7 @@ sgl_obj_t* sgl_dropdown_create(sgl_obj_t* parent)
     dropdown->body_desc.border = 1;
     dropdown->body_desc.border_color = SGL_THEME_BORDER_COLOR;
 
+    dropdown->font = sgl_get_system_font();
     dropdown->head = NULL;
     dropdown->is_open = false;
 
