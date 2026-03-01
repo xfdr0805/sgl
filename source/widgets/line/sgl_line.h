@@ -99,7 +99,7 @@ static inline void sgl_line_set_width(sgl_obj_t *obj, uint8_t width)
 {
 	SGL_ASSERT(obj != NULL);
 	sgl_line_t *line = sgl_container_of(obj, sgl_line_t, obj);
-	line->desc.width = width << 1;
+	obj->border = width << 1;
 	sgl_obj_set_dirty(obj);
 }
 

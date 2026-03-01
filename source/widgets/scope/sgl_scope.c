@@ -303,7 +303,7 @@ static void scope_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_event_t *ev
             for (uint32_t i = 1; i < data_points; i++) {
                 //int index = (scope->current_index >= i) ? scope->current_index - i : scope->data_len - (i - scope->current_index);
                 uint32_t prev_index = (scope->current_index >= i + 1) ? scope->current_index - (i + 1) : scope->data_len - (i + 1 - scope->current_index);
-                
+
                 int16_t current_value = scope->data_buffer[prev_index];
 
                 // Clamp value to display range
@@ -399,7 +399,7 @@ sgl_obj_t* sgl_scope_create(sgl_obj_t* parent)
 void sgl_scope_append_data(sgl_obj_t* obj, int16_t value)
 {
     sgl_scope_t *scope = (sgl_scope_t*)obj;
-    
+
     // update the auto scale only if the auto_scale is enabled
     if (scope->auto_scale) {
         if (value < scope->running_min) scope->running_min = value;

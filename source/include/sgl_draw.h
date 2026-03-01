@@ -60,15 +60,15 @@ typedef struct sgl_draw_rect {
 
 /**
  * @brief line draw description
- * @start: start point
- * @end: end point
  * @color: line color
- * @width: line width
+ * @x_swap: x coordinate swap
+ * @y_swap: y coordinate swap
  * @alpha: alpha
  */
 typedef struct sgl_draw_line {
     sgl_color_t      color;
-    uint8_t          width;
+    uint8_t          x_swap : 4;
+    uint8_t          y_swap : 4;
     uint8_t          alpha;
 } sgl_draw_line_t;
 
@@ -460,9 +460,10 @@ void draw_line_fill_slanted(sgl_surf_t *surf, sgl_area_t *area, int16_t x1, int1
  * @param area area that contains the line
  * @param coords line coords
  * @param desc line description
+ * @param width line width
  * @return none
  */
-void sgl_draw_line(sgl_surf_t *surf, sgl_area_t *area, sgl_area_t *coords, sgl_draw_line_t *desc);
+void sgl_draw_line(sgl_surf_t *surf, sgl_area_t *area, sgl_area_t *coords, sgl_draw_line_t *desc, int16_t width);
 
 
 /**
