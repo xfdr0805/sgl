@@ -34,7 +34,6 @@
 sgl_anim_ctx_t sgl_anim_ctx = {
     .anim_list_head = NULL,
     .anim_list_tail = NULL,
-    .anim_cnt = 0,
 };
 
 
@@ -97,7 +96,6 @@ void sgl_anim_add(sgl_anim_t *anim)
 
     anim->next = NULL;
     anim->finished = 0;
-    sgl_anim_ctx.anim_cnt++;
 }
 
 
@@ -116,7 +114,6 @@ void sgl_anim_remove(sgl_anim_t *anim)
         if (sgl_anim_ctx.anim_list_head == NULL) {
             sgl_anim_ctx.anim_list_tail = NULL;
         }
-        sgl_anim_ctx.anim_cnt--;
         return;
     }
 
@@ -133,8 +130,6 @@ void sgl_anim_remove(sgl_anim_t *anim)
     if (anim == sgl_anim_ctx.anim_list_tail) {
         sgl_anim_ctx.anim_list_tail = prev;
     }
-
-    sgl_anim_ctx.anim_cnt--;
 }
 
 
@@ -149,11 +144,6 @@ void sgl_anim_task(void)
     int32_t value = 0;
     uint32_t elaps_time = 0;
     sgl_anim_t *anim = sgl_anim_ctx.anim_list_head, *next = NULL;
-
-    /* if no anim object, do nothing */
-    if (unlikely(sgl_anim_ctx.anim_cnt == 0)) {
-        return;
-    }
 
     while (anim != NULL) {
         anim->act_time += sgl_tick_get();

@@ -121,7 +121,6 @@ typedef struct sgl_anim {
 typedef struct sgl_anim_ctx {
     sgl_anim_t *anim_list_head;
     sgl_anim_t *anim_list_tail;
-    uint32_t    anim_cnt;
 } sgl_anim_ctx_t;
 
 
