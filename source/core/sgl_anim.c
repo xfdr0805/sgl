@@ -147,7 +147,7 @@ void sgl_anim_start(sgl_anim_t *anim, uint32_t repeat_cnt)
         anim->finished = 0;
     }
 
-    anim->act_delay = sgl_tick_get();
+    anim->act_delay = sgl_tick_get() + anim->act_delay;
     anim->repeat_cnt = repeat_cnt & SGL_ANIM_REPEAT_LOOP;
 }
 
