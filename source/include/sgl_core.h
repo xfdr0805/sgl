@@ -108,14 +108,14 @@ typedef enum sgl_layout_type {
 */
 typedef struct sgl_layout_desc {
     sgl_layout_type_t type;
-    uint16_t col_num;
-    uint16_t row_num;
-    uint16_t col_space;
-    uint16_t row_space;
-    uint16_t left_space;
-    uint16_t right_space;
-    uint16_t top_space;
-    uint16_t bottom_space;
+    int16_t col_num;
+    int16_t row_num;
+    int16_t col_space;
+    int16_t row_space;
+    int16_t left_space;
+    int16_t right_space;
+    int16_t top_space;
+    int16_t bottom_space;
 } sgl_layout_desc_t;
 
 
