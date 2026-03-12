@@ -808,7 +808,7 @@ static inline void sgl_tick_inc(uint32_t ms)
  */
 static inline void sgl_tick_sync(uint32_t tick_ms)
 {
-    sgl_system.last_tick = tick_ms;
+    sgl_system.tick_ms = tick_ms;
 }
 
 
@@ -1717,8 +1717,8 @@ static inline void sgl_task_handle(void)
     if ((tick - sgl_last_tick_get()) < SGL_SYSTEM_TICK_MS) {
         return;
     }
-    /* sync tick */
-    sgl_tick_sync(tick);
+    /* sync last tick */
+    sgl_system.last_tick = tick;
 
     /* If the system tick time has been reached, execute the task. */
     sgl_task_handle_sync();
