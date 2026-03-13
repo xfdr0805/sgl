@@ -1391,6 +1391,7 @@ void sgl_obj_set_pos_align_ref(sgl_obj_t *ref, sgl_obj_t *obj, sgl_align_type_t 
         SGL_LOG_WARN("invalid align type");
     break;
     }
+    sgl_obj_set_dirty(obj);
 }
 
 

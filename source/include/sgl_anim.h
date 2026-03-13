@@ -94,6 +94,7 @@ typedef int32_t (*sgl_anim_path_algo_t)(uint32_t elaps, uint32_t duration, int32
 typedef struct sgl_anim {
     void                  *data;
     struct sgl_anim       *next;
+    uint32_t              act_time;
     uint32_t              act_delay;
     uint32_t              act_duration;
     int32_t               start_value;

@@ -146,8 +146,7 @@ void sgl_anim_start(sgl_anim_t *anim, uint32_t repeat_cnt)
         sgl_anim_add(anim);
         anim->finished = 0;
     }
-
-    anim->act_delay = sgl_tick_get() + anim->act_delay;
+    anim->act_time = sgl_tick_get() + anim->act_delay;
     anim->repeat_cnt = repeat_cnt & SGL_ANIM_REPEAT_LOOP;
 }
 
@@ -164,7 +163,6 @@ void sgl_anim_stop(sgl_anim_t *anim)
         sgl_anim_remove(anim);
         anim->finished = 1;
     }
-    anim->act_delay = 0;
 }
 
 
@@ -192,17 +190,15 @@ void sgl_anim_delete(sgl_anim_t *anim)
 void sgl_anim_task(void)
 {
     int32_t value = 0;
-    uint32_t elaps_time = 0, act_time = 0;
+    uint32_t elaps_time = 0;
+    const uint32_t current_tick = sgl_tick_get();
     sgl_anim_t *anim = sgl_anim_ctx.anim_list_head, *next = NULL;
 
     for (; anim != NULL; anim = anim->next) {
-        act_time = sgl_tick_get();
-
-        if(act_time < anim->act_delay) {
+        if(current_tick < anim->act_time) {
             continue;
         }
-
-        elaps_time = act_time - anim->act_delay;
+        elaps_time = current_tick - anim->act_time;
 
         /* check callback function for debug */
         SGL_ASSERT(anim->path_cb != NULL);
@@ -232,7 +228,7 @@ void sgl_anim_task(void)
                 }
             }
 
-            anim->act_delay += anim->act_duration;
+            anim->act_time += elaps_time + anim->act_delay;
         }
     }
 }
