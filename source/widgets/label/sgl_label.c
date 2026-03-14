@@ -129,3 +129,32 @@ sgl_obj_t* sgl_label_create(sgl_obj_t* parent)
 
     return obj;
 }
+
+
+/**
+ * @brief set the text of the label
+ * @param obj pointer to the label object
+ * @param fmt format string
+ * @return none
+ * @warning If you use this function, please make sure the string is less than CONFIG_SGL_LABEL_FMT_LEN_MAX
+ *          the CONFIG_SGL_LABEL_FMT_LEN_MAX is 16 by default.
+ *          And if you used this function, please always use sgl_label_set_text_fmt() instead of sgl_label_set_text().
+ */
+void sgl_label_set_text_fmt(sgl_obj_t* obj, const char *fmt, ...)
+{
+    va_list args;
+    sgl_label_t *label = sgl_container_of(obj, sgl_label_t, obj);
+
+    if (*label->text == '\0') {
+        label->text = (char*)sgl_malloc(SGL_LABEL_FMT_LEN_MAX);
+        if (label->text == NULL) {
+            SGL_LOG_ERROR("sgl_label_set_text_fmt: realloc failed");
+            return;
+        }
+    }
+
+    va_start(args, fmt);
+    sgl_vsnprintf(label->text, SGL_LABEL_FMT_LEN_MAX, fmt, args);
+    va_end(args);
+    sgl_obj_set_dirty(obj);
+}
