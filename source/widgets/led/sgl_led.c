@@ -91,16 +91,6 @@ static void sgl_led_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_event_t *
             buf += surf->w;
         }
     }
-    else if (evt->type == SGL_EVENT_DRAW_INIT) {
-        if (obj->radius == SGL_RADIUS_INVALID) {
-            sgl_obj_set_radius(obj, SGL_POS_MAX);
-        }
-    }
-    else if (evt->type == SGL_EVENT_PRESSED || evt->type == SGL_EVENT_RELEASED) {
-        if (obj->event_fn) {
-            obj->event_fn(evt);
-        }
-    }
 }
 
 
@@ -130,7 +120,7 @@ sgl_obj_t* sgl_led_create(sgl_obj_t* parent)
     led->on_color = SGL_THEME_COLOR;
     led->off_color = SGL_THEME_BG_COLOR;
     led->bg_color = SGL_THEME_BG_COLOR;
-    obj->radius = SGL_RADIUS_INVALID;
+    obj->radius = 0;
 
     return obj;
 }
