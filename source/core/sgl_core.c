@@ -914,11 +914,7 @@ int sgl_obj_init(sgl_obj_t *obj, sgl_obj_t *parent)
     /* set essential member */
     obj->coords = parent->coords;
     obj->parent = parent;
-    obj->event_fn = NULL;
-    obj->event_data = 0;
-    obj->construct_fn = NULL;
     obj->dirty = 1;
-    obj->clickable = 0;
 
     /* init object area to invalid */
     sgl_area_init(&obj->area);

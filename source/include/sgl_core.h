@@ -383,14 +383,14 @@ typedef struct sgl_font {
  *
  * This structure defines a generic GUI element that can be part of a hierarchical display tree.
  * Members:
+ * @parent: Pointer to the parent object; NULL if this is a root-level object.
+ * @child: Pointer to the first child in the list of children.
+ * @sibling: Pointer to the next sibling under the same parent.
  * @area: The logical size (width, height) of the object, used for layout and measurement.
  * @coords: The current screen position (x, y) and dimensions after layout calculation.
  * @event_fn: Callback function invoked when an event (e.g., touch, click) targets this object.
  * @event_data: User-defined context data passed to the event callback.
  * @construct_fn: Initialization hook called during object creation to allocate resources or set defaults.
- * @parent: Pointer to the parent object; NULL if this is a root-level object.
- * @child: Pointer to the first child in the list of children.
- * @sibling: Pointer to the next sibling under the same parent.
  * @destroyed: (1 bit) Set to 1 when the object is marked for destruction.
  * @dirty: (1 bit) Set to 1 when the object needs to be redrawn.
  * @hide: (1 bit) Set to 1 to exclude the object from rendering (hidden).
@@ -412,14 +412,14 @@ typedef struct sgl_font {
  *        Only present if CONFIG_SGL_OBJ_USE_NAME is defined.
  */
 typedef struct sgl_obj {
+    struct sgl_obj  *parent;
+    struct sgl_obj  *child;
+    struct sgl_obj  *sibling;
     sgl_area_t      area;
     sgl_area_t      coords;
     void            (*event_fn)(sgl_event_t *e);
     void            *event_data;
     void            (*construct_fn)(sgl_surf_t *surf, struct sgl_obj *obj, sgl_event_t *event);
-    struct sgl_obj  *parent;
-    struct sgl_obj  *child;
-    struct sgl_obj  *sibling;
     uint8_t         destroyed : 1;
     uint8_t         dirty : 1;
     uint8_t         hide : 1;

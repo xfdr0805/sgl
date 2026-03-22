@@ -115,8 +115,6 @@ sgl_obj_t* sgl_led_create(sgl_obj_t* parent)
     sgl_obj_init(&led->obj, parent);
     obj->construct_fn = sgl_led_construct_cb;
 
-    obj->needinit = 1;
-
     led->alpha = SGL_ALPHA_MAX;
     led->on_color = SGL_THEME_COLOR;
     led->off_color = SGL_THEME_BG_COLOR;
