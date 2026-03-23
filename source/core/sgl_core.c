@@ -829,9 +829,9 @@ static inline int32_t sgl_area_growth(sgl_area_t *a, sgl_area_t *b)
  */
 static inline bool sgl_merge_determines(sgl_area_t* a, sgl_area_t* b)
 {
-    int16_t gap_x = (a->x1 > b->x2) ? (a->x1 - b->x2) : (b->x1 > a->x2) ? (b->x1 - a->x2) : 0;
-    int16_t gap_y = (a->y1 > b->y2) ? (a->y1 - b->y2) : (b->y1 > a->y2) ? (b->y1 - a->y2) : 0;    
-    int16_t threshold = (sgl_min4(a->x2 - a->x1 + 1, a->y2 - a->y1 + 1, b->x2 - b->x1 + 1, b->y2 - b->y1 + 1) >> 2);
+    const int16_t gap_x = (a->x1 > b->x2) ? (a->x1 - b->x2) : (b->x1 > a->x2) ? (b->x1 - a->x2) : 0;
+    const int16_t gap_y = (a->y1 > b->y2) ? (a->y1 - b->y2) : (b->y1 > a->y2) ? (b->y1 - a->y2) : 0;    
+    const int16_t threshold = (sgl_min4(a->x2 - a->x1 + 1, a->y2 - a->y1 + 1, b->x2 - b->x1 + 1, b->y2 - b->y1 + 1) >> 2);
 
     return (gap_x <= threshold) && (gap_y <= threshold);
 }
