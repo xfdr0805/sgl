@@ -236,6 +236,19 @@ static inline void sgl_surf_vline(sgl_surf_t *surf, int16_t x, int16_t y1, int16
 
 
 /**
+ * @brief draw a wireframe rectangle with alpha
+ * @param surf point to surface
+ * @param area area of rectangle that you want to draw
+ * @param rect point to rectangle that you want to draw
+ * @param weight width of wireframe
+ * @param color color of rectangle
+ * @param alpha alpha of rectangle
+ * @return none
+ */
+void sgl_draw_wireframe(sgl_surf_t *surf, sgl_area_t *area, sgl_area_t *rect, int16_t weight, sgl_color_t color, uint8_t alpha);
+
+
+/**
  * @brief fill a round rectangle with alpha
  * @param surf point to surface
  * @param area area of rectangle that you want to draw
