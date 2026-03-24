@@ -32,22 +32,22 @@
  * @param surf point to surface
  * @param area area of rectangle that you want to draw
  * @param rect point to rectangle that you want to draw
- * @param weight width of wireframe
+ * @param width width of wireframe
  * @param color color of rectangle
  * @param alpha alpha of rectangle
  * @return none
  */
-void sgl_draw_wireframe(sgl_surf_t *surf, sgl_area_t *area, sgl_area_t *rect, int16_t weight, sgl_color_t color, uint8_t alpha)
+void sgl_draw_wireframe(sgl_surf_t *surf, sgl_area_t *area, sgl_area_t *rect, int16_t width, sgl_color_t color, uint8_t alpha)
 {
     const int16_t x1 = rect->x1;
     const int16_t x2 = rect->x2;
     const int16_t y1 = rect->y1;
     const int16_t y2 = rect->y2;
 
-    sgl_draw_fill_hline(surf, area, y1, x1, x2, weight, color, alpha);
-    sgl_draw_fill_hline(surf, area, y2, x1, x2, weight, color, alpha);
-    sgl_draw_fill_vline(surf, area, x1, y1 + weight, y2 - weight, weight, color, alpha);
-    sgl_draw_fill_vline(surf, area, x2, y1 + weight, y2 - weight, weight, color, alpha);
+    sgl_draw_fill_hline(surf, area, y1, x1, x2, width, color, alpha);
+    sgl_draw_fill_hline(surf, area, y2, x1, x2, width, color, alpha);
+    sgl_draw_fill_vline(surf, area, x1, y1 + width, y2 - width, width, color, alpha);
+    sgl_draw_fill_vline(surf, area, x2, y1 + width, y2 - width, width, color, alpha);
 }
 
 
