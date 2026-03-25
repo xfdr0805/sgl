@@ -484,6 +484,7 @@ typedef struct sgl_fbinfo {
  * @fbinfo: framebuffer information, that specify the memory address of the framebuffer and resolution
  * @surf: Drawing surface associated with this page; defines the target buffer or area for rendering.
  * @dirty_num: dirty area number
+ * @update_flag: update to widget flag
  * @fb_swap: framebuffer swap flag
  * @fb_status: framebuffer status flag
  * @dirty: dirty area pool
@@ -492,7 +493,8 @@ typedef struct sgl_fbinfo {
 typedef struct sgl_fbdev {
     sgl_fbinfo_t      fbinfo;
     sgl_surf_t        surf;
-    uint16_t          dirty_num;
+    uint8_t           dirty_num;
+    volatile uint8_t  update_flag;
     volatile uint8_t  fb_swap;
     volatile uint8_t  fb_status;
     sgl_area_t        dirty[SGL_DIRTY_AREA_NUM_MAX];
@@ -1033,42 +1035,12 @@ static inline const sgl_font_t* sgl_get_system_font(void)
 
 
 /**
- * @brief  Set the object to be destroyed
- * @param  obj: the object to set
- * @retval None
- * @note this function is used to set the destroyed flag of the object, then next draw cycle, the object will be removed
- *       the object should be not NULL.
- */
-static inline void sgl_obj_set_destroyed(sgl_obj_t *obj)
-{
-    SGL_ASSERT(obj != NULL);
-    obj->destroyed = 1;
-}
-
-
-/**
- * @brief check object destroyed flag
- * @param obj point to object
- * @return flag, false - live, true - destroyed
- */
-static inline bool sgl_obj_is_destroyed(sgl_obj_t *obj)
-{
-    SGL_ASSERT(obj != NULL);
-    return (bool)obj->destroyed;
-}
-
-
-/**
  * @brief Set object to dirty
  * @param obj point to object
  * @return none
  * @note this function will set object to dirty, include its children
  */
-static inline void sgl_obj_set_dirty(sgl_obj_t *obj)
-{
-    SGL_ASSERT(obj != NULL);
-    obj->dirty = 1;
-}
+void sgl_obj_set_dirty(sgl_obj_t *obj);
 
 
 /**
@@ -1090,6 +1062,28 @@ static inline void sgl_obj_clear_dirty(sgl_obj_t *obj)
  * @note   This function is used to clear all dirty areas of the object and its children.
  */
 void sgl_obj_clear_all_dirty(sgl_obj_t *obj);
+
+
+/**
+ * @brief  Set the object to be destroyed
+ * @param  obj: the object to set
+ * @retval None
+ * @note this function is used to set the destroyed flag of the object, then next draw cycle, the object will be removed
+ *       the object should be not NULL.
+ */
+void sgl_obj_set_destroyed(sgl_obj_t *obj);
+
+
+/**
+ * @brief check object destroyed flag
+ * @param obj point to object
+ * @return flag, false - live, true - destroyed
+ */
+static inline bool sgl_obj_is_destroyed(sgl_obj_t *obj)
+{
+    SGL_ASSERT(obj != NULL);
+    return (bool)obj->destroyed;
+}
 
 
 /**
@@ -1295,16 +1289,7 @@ static inline bool sgl_obj_is_movable(sgl_obj_t *obj)
  * @param area point to area that need update
  * @return none, this function will force update object area
  */
-static inline void sgl_obj_update_area(sgl_area_t *area)
-{
-    SGL_ASSERT(area != NULL);
-    sgl_area_t clip = sgl_system.fbdev.active->area;
-    clip.x1 = sgl_max(clip.x1, area->x1);
-    clip.x2 = sgl_min(clip.x2, area->x2);
-    clip.y1 = sgl_max(clip.y1, area->y1);
-    clip.y2 = sgl_min(clip.y2, area->y2);
-    sgl_dirty_area_push(&clip);
-}
+void sgl_obj_update_area(sgl_area_t *area);
 
 
 /**

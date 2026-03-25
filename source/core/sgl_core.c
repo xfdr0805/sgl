@@ -234,7 +234,7 @@ void sgl_obj_set_abs_pos(sgl_obj_t *obj, int16_t abs_x, int16_t abs_y)
     int16_t x_diff = abs_x - obj->coords.x1;
     int16_t y_diff = abs_y - obj->coords.y1;
 
-    obj->dirty = 1;
+    sgl_obj_set_dirty(obj);
     obj->coords.x1 += x_diff;
     obj->coords.x2 += x_diff;
     obj->coords.y1 += y_diff;
@@ -914,7 +914,7 @@ int sgl_obj_init(sgl_obj_t *obj, sgl_obj_t *parent)
     /* set essential member */
     obj->coords = parent->coords;
     obj->parent = parent;
-    obj->dirty = 1;
+    sgl_obj_set_dirty(obj);
 
     /* init object area to invalid */
     sgl_area_init(&obj->area);
@@ -957,6 +957,35 @@ void sgl_obj_free(sgl_obj_t *obj)
 
 
 /**
+ * @brief Set object to dirty
+ * @param obj point to object
+ * @return none
+ * @note this function will set object to dirty, include its children
+ */
+void sgl_obj_set_dirty(sgl_obj_t *obj)
+{
+    SGL_ASSERT(obj != NULL);
+    obj->dirty = 1;
+    sgl_system.fbdev.update_flag = 1;
+}
+
+
+/**
+ * @brief  Set the object to be destroyed
+ * @param  obj: the object to set
+ * @retval None
+ * @note this function is used to set the destroyed flag of the object, then next draw cycle, the object will be removed
+ *       the object should be not NULL.
+ */
+void sgl_obj_set_destroyed(sgl_obj_t *obj)
+{
+    SGL_ASSERT(obj != NULL);
+    obj->destroyed = 1;
+    sgl_system.fbdev.update_flag = 1;
+}
+
+
+/**
  * @brief  Clear all dirty areas of the object and its children.
  * @param[in] obj  The object to clear.
  * @return  None
@@ -982,6 +1011,23 @@ void sgl_obj_clear_all_dirty(sgl_obj_t *obj)
             stack[top++] = obj->child;
         }
     }
+}
+
+
+/**
+ * @brief update object area
+ * @param area point to area that need update
+ * @return none, this function will force update object area
+ */
+void sgl_obj_update_area(sgl_area_t *area)
+{
+    SGL_ASSERT(area != NULL);
+    sgl_area_t clip = sgl_system.fbdev.active->area;
+    clip.x1 = sgl_max(clip.x1, area->x1);
+    clip.x2 = sgl_min(clip.x2, area->x2);
+    clip.y1 = sgl_max(clip.y1, area->y1);
+    clip.y2 = sgl_min(clip.y2, area->y2);
+    sgl_dirty_area_push(&clip);
 }
 
 
@@ -1559,12 +1605,12 @@ static inline void draw_obj_slice(sgl_obj_t *obj, sgl_surf_t *surf)
 
 
 /**
- * @brief calculate dirty area by for each all object that is dirty and visible
+ * @brief collect all dirty area by for each all object that is dirty and visible
  * @param obj it should point to active root object
  * @return none
  * @note if there is no dirty area, the dirty area will remain unchanged
  */
-static inline void sgl_dirty_area_calculate(sgl_obj_t *obj)
+static inline void sgl_dirty_area_harvest(sgl_obj_t *obj)
 {
     sgl_obj_t *stack[SGL_OBJ_DEPTH_MAX];
     int top = 0;
@@ -1661,7 +1707,7 @@ static inline void sgl_draw_task(sgl_fbdev_t *fbdev)
     sgl_area_t *dirty = NULL;
 
     /* dirty area number must less than SGL_DIRTY_AREA_MAX */
-    for (int i = 0; i < fbdev->dirty_num; i++) {
+    for (uint8_t i = 0; i < fbdev->dirty_num; i++) {
         dirty = &fbdev->dirty[i];
         surf->dirty = dirty;
 
@@ -1728,8 +1774,12 @@ void sgl_task_handle_sync(void)
     sgl_anim_task();
 #endif // !CONFIG_SGL_ANIMATION
 
-    /* foreach all object tree and calculate dirty area */
-    sgl_dirty_area_calculate(sgl_system.fbdev.active);
+    if (sgl_system.fbdev.update_flag) {
+        /* foreach all object tree and calculate dirty area */
+        sgl_dirty_area_harvest(sgl_system.fbdev.active);
+        /* reset the flag */
+        sgl_system.fbdev.update_flag = 0;
+    }
 
     /* draw all object into screen */
     sgl_draw_task(&sgl_system.fbdev);
