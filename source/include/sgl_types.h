@@ -144,7 +144,7 @@ extern "C" {
 #define sgl_section(sec)                        __attribute__((section(#sec)))
 #elif defined(__ICCARM__)  /* IAR compiler    */
 #ifndef likely
-#  if __VER__ >= 91000
+#  if __VER__ >= 9100000
 #    define likely(x)                           __iar_builtin_expect(!!(x), 1)
 #    define unlikely(x)                         __iar_builtin_expect(!!(x), 0)
 #  else
@@ -197,7 +197,13 @@ extern "C" {
 #define sgl_rgb(r,g,b)                          (sgl_color_t){ .ch.blue    = (b),                                     \
                                                                .ch.green   = (g),                                     \
                                                                .ch.red     = (r),}
-                
+
+#define sgl_color_hex(hex)                      (sgl_color_t){ .ch.blue    = ((uint8_t)((hex) >> 0) & 0xFF),          \
+                                                               .ch.green   = ((uint8_t)((hex) >> 8) & 0xFF),          \
+                                                               .ch.red     = ((uint8_t)((hex) >> 16) & 0xFF),}
+
+#defne sgl_color_value(color)                   ((color).ch.blue | ((color).ch.green << 8) | ((color).ch.red << 16))
+
 #define sgl_rgb222_to_color(rgb222)             (sgl_color_t){ .ch.blue    = ((((rgb222) >> 0) & 0x03) << 6),         \
                                                                .ch.green   = ((((rgb222) >> 2) & 0x03) << 6),         \
                                                                .ch.red     = ((((rgb222) >> 4) & 0x03) << 6),}
@@ -223,6 +229,12 @@ extern "C" {
                                                                .ch.green   = (g) >> 2,                                \
                                                                .ch.red     = (r) >> 3,}
 
+#define sgl_color_hex(hex)                      (sgl_color_t){ .ch.blue    = ((uint8_t)((hex) >> 0) & 0x1F),          \
+                                                               .ch.green   = ((uint8_t)((hex) >> 5) & 0x3F),          \
+                                                               .ch.red     = ((uint8_t)((hex) >> 11) & 0x1F),}
+
+#define sgl_color_value(color)                  ((color).ch.blue | ((color).ch.green << 5) | ((color).ch.red << 11))
+
 #define sgl_rgb222_to_color(rgb222)             (sgl_color_t){ .ch.blue    = ((((rgb222) >> 0) & 0x03) << 3),         \
                                                                .ch.green   = ((((rgb222) >> 2) & 0x03) << 4),         \
                                                                .ch.red     = ((((rgb222) >> 4) & 0x03) << 3),}
@@ -247,6 +259,12 @@ extern "C" {
 #define sgl_rgb(r,g,b)                          (sgl_color_t){ .ch.blue    = (b >> 6),                                \
                                                                .ch.green   = (g >> 5),                                \
                                                                .ch.red     = (r >> 5),}
+
+#define sgl_color_hex(hex)                      (sgl_color_t){ .ch.blue    = ((uint8_t)((hex) >> 0) & 0x03),          \
+                                                               .ch.green   = ((uint8_t)((hex) >> 3) & 0x07),          \
+                                                               .ch.red     = ((uint8_t)((hex) >> 5) & 0x07),}
+
+#define sgl_color_value(color)                  ((color).ch.blue | ((color).ch.green << 3) | ((color).ch.red << 5))
 
 #define sgl_rgb222_to_color(rgb222)             (sgl_color_t){ .ch.blue    = ((((rgb222) >> 0) & 0x03) >> 0),         \
                                                                .ch.green   = ((((rgb222) >> 2) & 0x03) >> 1),         \

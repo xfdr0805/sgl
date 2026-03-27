@@ -842,67 +842,6 @@ static inline void sgl_tick_sync(uint32_t tick_ms)
 
 
 /**
-* @brief converts the color value of an integer into a color structure
-* @param: color value
-* @return: sgl_color_t
-*/
-static inline sgl_color_t sgl_int2color(uint32_t color)
-{
-    sgl_color_t c;
-#if (CONFIG_SGL_FBDEV_PIXEL_DEPTH == 32)
-    c.full = color;
-#elif (CONFIG_SGL_FBDEV_PIXEL_DEPTH == 24)
-    c.ch.blue    = (uint8_t)color;
-    c.ch.green   = (uint8_t)(color >> 8);
-    c.ch.red     = (uint8_t)(color >> 16);
-#elif (CONFIG_SGL_FBDEV_PIXEL_DEPTH == 16)
-    c.ch.blue    = (uint8_t)(color & 0x1f);
-    c.ch.green   = (uint8_t)((color >> 5) & 0x3f);
-    c.ch.red     = (uint8_t)((color >> 11) & 0x1f);
-#elif (CONFIG_SGL_FBDEV_PIXEL_DEPTH == 8)
-    c.ch.blue    = (uint8_t)(color & 0x3);
-    c.ch.green   = (uint8_t)((color >> 2) & 0x7);
-    c.ch.red     = (uint8_t)((color >> 5) & 0x7);
-#endif
-    return c;
-}
-
-
-/**
- * @brief converts the color structure into an integer
- * @param: color structure
- * @return: integer
- */
-static inline uint32_t sgl_color2int(sgl_color_t color)
-{
-    uint32_t c;
-#if (CONFIG_SGL_FBDEV_PIXEL_DEPTH == 24)
-    c = color.ch.blue | (color.ch.green << 8) | (color.ch.red << 16);
-#else
-    c = color.full;
-#endif
-    return c;
-}
-
-
-/**
-* @brief Inline function that converts the color value of an (r,g,b) into a color structure
-* @param: red    Red color component
-* @param: green  Green color component
-* @param: blue   Blue color component
-* @return: sgl_color_t
-*/
-static inline sgl_color_t sgl_rgb2color(uint8_t red, uint8_t green, uint8_t blue)
-{
-    sgl_color_t color;
-    color.ch.blue = blue;
-    color.ch.green = green;
-    color.ch.red = red;
-    return color;
-}
-
-
-/**
  * @brief init object node
  * @param obj: pointer of object
  * @return none
