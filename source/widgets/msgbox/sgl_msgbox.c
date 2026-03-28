@@ -128,6 +128,7 @@ static void sgl_msgbox_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_event_
             if (msgbox->exit_btn) {
                 *msgbox->exit_btn = msgbox->lbtn_text;
             }
+            left_coords.y1 += font_height;
             sgl_obj_update_area(&left_coords);
         }
         else if(evt->pos.y > (obj->coords.y2 - font_height - 2) && evt->pos.x > ((obj->coords.x1 + obj->coords.x2) / 2)) {
@@ -135,6 +136,7 @@ static void sgl_msgbox_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_event_
             if (msgbox->exit_btn) {
                 *msgbox->exit_btn = msgbox->rbtn_text;
             }
+            right_coords.y1 += font_height;
             sgl_obj_update_area(&right_coords);
         }
         else {
