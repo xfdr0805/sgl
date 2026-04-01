@@ -202,7 +202,7 @@ extern "C" {
                                                                .ch.green   = ((uint8_t)((hex) >> 8) & 0xFF),          \
                                                                .ch.red     = ((uint8_t)((hex) >> 16) & 0xFF),}
 
-#defne sgl_color_value(color)                   ((color).ch.blue | ((color).ch.green << 8) | ((color).ch.red << 16))
+#define sgl_color_value(color)                  ((color).ch.blue | ((color).ch.green << 8) | ((color).ch.red << 16))
 
 #define sgl_rgb222_to_color(rgb222)             (sgl_color_t){ .ch.blue    = ((((rgb222) >> 0) & 0x03) << 6),         \
                                                                .ch.green   = ((((rgb222) >> 2) & 0x03) << 6),         \
