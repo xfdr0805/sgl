@@ -1171,8 +1171,8 @@ uint32_t sgl_search_unicode_ch_index(const sgl_font_t *font, uint32_t unicode)
     uint32_t target = unicode;
     const sgl_font_unicode_t *code = font->unicode;
 
-    for (uint32_t i = 1; i < font->unicode_num; i ++) {
-        if (target < (code->offset + code->len)) {
+    for (uint32_t i = 0; i < font->unicode_num; i ++) {
+        if ((target >= code[i].offset) && (target < code[i + 1].offset)) {
             break;
         }
         code ++;
