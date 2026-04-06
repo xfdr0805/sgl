@@ -77,6 +77,10 @@ extern "C" {
 #define CONFIG_SGL_DIRTY_AREA_TRACE                                (0)  /* Dirty region debug trace */
 #endif
 
+#define CONFIG_SGL_DIRTY_AREA_TRACE_COLOR
+#define CONFIG_SGL_DIRTY_AREA_TRACE_COLOR                          sgl_rgb(0, 0, 0)  /* Dirty region debug trace color */
+#endif
+
 #ifndef CONFIG_SGL_PIXMAP_BILINEAR_INTERP
 #define CONFIG_SGL_PIXMAP_BILINEAR_INTERP                          (0)  /* Pixmap bilinear interpolation */
 #endif

@@ -1626,7 +1626,7 @@ static inline void dirty_area_trace(sgl_surf_t *surf)
         .y1 = surf->y1 - 1,
         .y2 = surf->y2 + 1,
     };
-    sgl_draw_wireframe(surf, &frame, surf->dirty, 1, SGL_COLOR_BLACK, SGL_ALPHA_MAX);
+    sgl_draw_wireframe(surf, &frame, surf->dirty, 1, SGL_DIRTY_AREA_TRACE_COLOR, SGL_ALPHA_MAX);
 }
 
 

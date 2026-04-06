@@ -44,7 +44,8 @@ extern "C" {
 #define  SGL_DRAW_BUFFER_MAX               (2)
 /* define default animation tick ms */
 #define  SGL_SYSTEM_TICK_MS                CONFIG_SGL_SYSTICK_MS
-
+/* define dirty area trace color */
+#define SGL_DIRTY_AREA_TRACE_COLOR         CONFIG_SGL_DIRTY_AREA_TRACE_COLOR
 
 #if (CONFIG_SGL_DIRTY_AREA_NUM_MAX)
 #define  SGL_DIRTY_AREA_NUM_MAX            CONFIG_SGL_DIRTY_AREA_NUM_MAX
