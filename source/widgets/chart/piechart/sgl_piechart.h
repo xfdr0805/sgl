@@ -62,6 +62,37 @@ typedef enum sgl_piechart_legend_dir {
     SGL_PIECHART_LEGEND_DIR_HORIZONTAL = 1, /**< Legend items from left to right */
 } sgl_piechart_legend_dir_t;
 
+#ifndef SGL_BITS_GET
+#define SGL_BITS_GET(value, mask) (((value) & (mask)) != 0U)
+#define SGL_BITS_SET(value, mask) ((value) |= (uint8_t)(mask))
+#define SGL_BITS_CLR(value, mask) ((value) &= (uint8_t)(~(mask)))
+#define SGL_BITS_SET_TO(value, mask, enable) do { if (enable) SGL_BITS_SET((value), (mask)); else SGL_BITS_CLR((value), (mask)); } while (0)
+#define SGL_BITS_FIELD_GET(value, mask, shift) (((value) & (mask)) >> (shift))
+#define SGL_BITS_FIELD_SET(value, mask, shift, field_value) \
+    ((value) = (uint8_t)(((value) & (uint8_t)(~(mask))) | ((((uint8_t)(field_value)) << (shift)) & (mask))))
+#endif
+
+#define SGL_PIECHART_FLAG_LEGEND_ENABLE      (1U << 0)
+#define SGL_PIECHART_FLAG_SMOOTH             (1U << 1)
+#define SGL_PIECHART_FLAG_LEGEND_BG_ENABLE   (1U << 2)
+#define SGL_PIECHART_FLAG_OPEN_ANIM_ENABLE   (1U << 3)
+#define SGL_PIECHART_FLAG_OPEN_ANIM_PLAYING  (1U << 4)
+#define SGL_PIECHART_FLAG_LEGEND_DIR         (1U << 5)
+
+#define SGL_PIECHART_LEGEND_POS_SHIFT        0U
+#define SGL_PIECHART_LEGEND_POS_MASK         (0x7U << SGL_PIECHART_LEGEND_POS_SHIFT)
+
+#define SGL_PIECHART_HAS(pie, flag) SGL_BITS_GET((pie)->options, (flag))
+#define SGL_PIECHART_SET(pie, flag, enable) SGL_BITS_SET_TO((pie)->options, (flag), (enable))
+#define SGL_PIECHART_GET_LEGEND_DIR(pie) \
+    (SGL_PIECHART_HAS((pie), SGL_PIECHART_FLAG_LEGEND_DIR) ? SGL_PIECHART_LEGEND_DIR_HORIZONTAL : SGL_PIECHART_LEGEND_DIR_VERTICAL)
+#define SGL_PIECHART_SET_LEGEND_DIR(pie, dir) \
+    SGL_PIECHART_SET((pie), SGL_PIECHART_FLAG_LEGEND_DIR, (dir) == SGL_PIECHART_LEGEND_DIR_HORIZONTAL)
+#define SGL_PIECHART_GET_LEGEND_POS(pie) \
+    ((sgl_piechart_legend_pos_t)SGL_BITS_FIELD_GET((pie)->layout, SGL_PIECHART_LEGEND_POS_MASK, SGL_PIECHART_LEGEND_POS_SHIFT))
+#define SGL_PIECHART_SET_LEGEND_POS(pie, pos) \
+    SGL_BITS_FIELD_SET((pie)->layout, SGL_PIECHART_LEGEND_POS_MASK, SGL_PIECHART_LEGEND_POS_SHIFT, (pos))
+
 
 /**
  * @brief Single slice of piechart
@@ -97,15 +128,8 @@ typedef struct sgl_piechart {
 
     /* global pie config */
     uint8_t     alpha;              /**< global alpha of pie (0~255) */
-    uint8_t     legend_enable     : 1;  /**< enable legend drawing */
-    uint8_t     smooth            : 1;  /**< use smooth arc mode */
-    uint8_t     legend_bg_enable  : 1;  /**< draw legend background block */
-    uint8_t     open_anim_enable  : 1;  /**< enable open (0->360deg) animation */
-    uint8_t     open_anim_playing : 1;  /**< internal flag: open animation running */
-    uint8_t     legend_dir        : 1;  /**< @ref sgl_piechart_legend_dir_t */
-    uint8_t     reserved_flags    : 2;
-    uint8_t     legend_pos        : 3;  /**< @ref sgl_piechart_legend_pos_t */
-    uint8_t     reserved_layout   : 5;
+    uint8_t     options;
+    uint8_t     layout;
 
     uint8_t     inner_radius_rate; /**< inner radius = outer * rate / 100, 0: full pie */
     uint8_t     legend_box_size;   /**< legend color box size in pixels */
@@ -247,7 +271,7 @@ static inline void sgl_piechart_set_radius(sgl_obj_t *obj, uint16_t radius)
 static inline void sgl_piechart_set_smooth(sgl_obj_t *obj, bool enable)
 {
     sgl_piechart_t *pie = sgl_container_of(obj, sgl_piechart_t, obj);
-    pie->smooth = (uint8_t)enable;
+    SGL_PIECHART_SET(pie, SGL_PIECHART_FLAG_SMOOTH, enable);
     sgl_obj_set_dirty(obj);
 }
 
@@ -258,7 +282,7 @@ static inline void sgl_piechart_set_smooth(sgl_obj_t *obj, bool enable)
 static inline void sgl_piechart_enable_legend(sgl_obj_t *obj, bool enable)
 {
     sgl_piechart_t *pie = sgl_container_of(obj, sgl_piechart_t, obj);
-    pie->legend_enable = (uint8_t)enable;
+    SGL_PIECHART_SET(pie, SGL_PIECHART_FLAG_LEGEND_ENABLE, enable);
     sgl_obj_set_dirty(obj);
 }
 
@@ -269,7 +293,7 @@ static inline void sgl_piechart_enable_legend(sgl_obj_t *obj, bool enable)
 static inline void sgl_piechart_set_legend_pos(sgl_obj_t *obj, sgl_piechart_legend_pos_t pos)
 {
     sgl_piechart_t *pie = sgl_container_of(obj, sgl_piechart_t, obj);
-    pie->legend_pos = pos;
+    SGL_PIECHART_SET_LEGEND_POS(pie, pos);
     sgl_obj_set_dirty(obj);
 }
 
@@ -280,7 +304,7 @@ static inline void sgl_piechart_set_legend_pos(sgl_obj_t *obj, sgl_piechart_lege
 static inline void sgl_piechart_set_legend_dir(sgl_obj_t *obj, sgl_piechart_legend_dir_t dir)
 {
     sgl_piechart_t *pie = sgl_container_of(obj, sgl_piechart_t, obj);
-    pie->legend_dir = (uint8_t)dir;
+    SGL_PIECHART_SET_LEGEND_DIR(pie, dir);
     sgl_obj_set_dirty(obj);
 }
 
@@ -349,8 +373,8 @@ static inline void sgl_piechart_set_legend_box_size(sgl_obj_t *obj, uint8_t size
 static inline void sgl_piechart_enable_open_anim(sgl_obj_t *obj, bool enable)
 {
     sgl_piechart_t *pie = sgl_container_of(obj, sgl_piechart_t, obj);
-    pie->open_anim_enable  = (uint8_t)enable;
-    pie->open_anim_playing = 0;        /* reset state so next draw will restart animation */
+    SGL_PIECHART_SET(pie, SGL_PIECHART_FLAG_OPEN_ANIM_ENABLE, enable);
+    SGL_PIECHART_SET(pie, SGL_PIECHART_FLAG_OPEN_ANIM_PLAYING, false); /* reset state so next draw will restart animation */
     sgl_obj_set_dirty(obj);
 }
 
@@ -397,7 +421,7 @@ static inline void sgl_piechart_set_legend_item_gap(sgl_obj_t *obj, uint8_t gap)
 static inline void sgl_piechart_enable_legend_bg(sgl_obj_t *obj, bool enable)
 {
     sgl_piechart_t *pie = sgl_container_of(obj, sgl_piechart_t, obj);
-    pie->legend_bg_enable = (uint8_t)enable;
+    SGL_PIECHART_SET(pie, SGL_PIECHART_FLAG_LEGEND_BG_ENABLE, enable);
     sgl_obj_set_dirty(obj);
 }
 

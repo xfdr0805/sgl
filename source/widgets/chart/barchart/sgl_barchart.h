@@ -26,21 +26,66 @@ extern "C" {
 #define SGL_BARCHART_DEFAULT_DIVISIONS   (4)
 #define SGL_BARCHART_OPEN_ANIM_DURATION  (600U)
 
+/**
+ * @brief Axis selector of barchart
+ */
 typedef enum sgl_barchart_axis_id {
     SGL_BARCHART_AXIS_X = 0,
     SGL_BARCHART_AXIS_Y = 1,
 } sgl_barchart_axis_id_t;
 
+/**
+ * @brief Open animation direction
+ */
 typedef enum sgl_barchart_open_anim_dir {
     SGL_BARCHART_OPEN_ANIM_NONE        = 0,
     SGL_BARCHART_OPEN_ANIM_FROM_LEFT   = 1,
     SGL_BARCHART_OPEN_ANIM_FROM_BOTTOM = 2,
 } sgl_barchart_open_anim_dir_t;
 
+/**
+ * @brief Layout direction of bars
+ */
 typedef enum sgl_barchart_orientation {
     SGL_BARCHART_ORIENTATION_VERTICAL   = 0,
     SGL_BARCHART_ORIENTATION_HORIZONTAL = 1,
 } sgl_barchart_orientation_t;
+
+#ifndef SGL_BITS_GET
+#define SGL_BITS_GET(value, mask) (((value) & (mask)) != 0U)
+#define SGL_BITS_SET(value, mask) ((value) |= (uint8_t)(mask))
+#define SGL_BITS_CLR(value, mask) ((value) &= (uint8_t)(~(mask)))
+#define SGL_BITS_SET_TO(value, mask, enable) do { if (enable) SGL_BITS_SET((value), (mask)); else SGL_BITS_CLR((value), (mask)); } while (0)
+#define SGL_BITS_FIELD_GET(value, mask, shift) (((value) & (mask)) >> (shift))
+#define SGL_BITS_FIELD_SET(value, mask, shift, field_value) \
+    ((value) = (uint8_t)(((value) & (uint8_t)(~(mask))) | ((((uint8_t)(field_value)) << (shift)) & (mask))))
+#endif
+
+#define SGL_BARCHART_AXIS_FLAG_AUTO_SCALE    (1U << 0)
+#define SGL_BARCHART_AXIS_FLAG_SHOW_GRID     (1U << 1)
+#define SGL_BARCHART_AXIS_FLAG_GRID_DASHED   (1U << 2)
+#define SGL_BARCHART_AXIS_FLAG_SHOW_LABELS   (1U << 3)
+#define SGL_BARCHART_AXIS_FLAG_SHOW_TICKS    (1U << 4)
+
+#define SGL_BARCHART_FLAG_CUSTOM_PLOT_RECT   (1U << 0)
+#define SGL_BARCHART_FLAG_OPEN_ANIM_ENABLE   (1U << 1)
+#define SGL_BARCHART_FLAG_OPEN_ANIM_PLAYING  (1U << 2)
+#define SGL_BARCHART_FLAG_ORIENTATION        (1U << 3)
+#define SGL_BARCHART_OPEN_ANIM_DIR_SHIFT     4U
+#define SGL_BARCHART_OPEN_ANIM_DIR_MASK      (0x3U << SGL_BARCHART_OPEN_ANIM_DIR_SHIFT)
+
+#define SGL_BARCHART_AXIS_HAS(axis, flag) SGL_BITS_GET((axis)->flags, (flag))
+#define SGL_BARCHART_AXIS_SET(axis, flag, enable) SGL_BITS_SET_TO((axis)->flags, (flag), (enable))
+#define SGL_BARCHART_HAS(chart, flag) SGL_BITS_GET((chart)->options, (flag))
+#define SGL_BARCHART_SET(chart, flag, enable) SGL_BITS_SET_TO((chart)->options, (flag), (enable))
+#define SGL_BARCHART_GET_ORIENTATION(chart) \
+    (SGL_BARCHART_HAS((chart), SGL_BARCHART_FLAG_ORIENTATION) ? SGL_BARCHART_ORIENTATION_HORIZONTAL : SGL_BARCHART_ORIENTATION_VERTICAL)
+#define SGL_BARCHART_SET_ORIENTATION(chart, orientation) \
+    SGL_BARCHART_SET((chart), SGL_BARCHART_FLAG_ORIENTATION, (orientation) == SGL_BARCHART_ORIENTATION_HORIZONTAL)
+#define SGL_BARCHART_GET_OPEN_ANIM_DIR(chart) \
+    ((sgl_barchart_open_anim_dir_t)SGL_BITS_FIELD_GET((chart)->options, SGL_BARCHART_OPEN_ANIM_DIR_MASK, SGL_BARCHART_OPEN_ANIM_DIR_SHIFT))
+#define SGL_BARCHART_SET_OPEN_ANIM_DIR(chart, dir) \
+    SGL_BITS_FIELD_SET((chart)->options, SGL_BARCHART_OPEN_ANIM_DIR_MASK, SGL_BARCHART_OPEN_ANIM_DIR_SHIFT, (dir))
 
 typedef struct sgl_barchart_axis {
     int32_t           min;
@@ -49,17 +94,15 @@ typedef struct sgl_barchart_axis {
     const sgl_font_t *label_font;
     sgl_color_t       grid_color;
     sgl_color_t       label_color;
-    uint8_t           auto_scale   : 1;
-    uint8_t           show_grid    : 1;
-    uint8_t           grid_dashed  : 1;
-    uint8_t           show_labels  : 1;
-    uint8_t           show_ticks   : 1;
-    uint8_t           reserved     : 3;
+    uint8_t           flags;           /**< packed axis flags, see SGL_BARCHART_AXIS_FLAG_* */
     uint8_t           auto_divisions;
     uint8_t           grid_alpha;
     uint8_t           label_alpha;
 } sgl_barchart_axis_t;
 
+/**
+ * @brief Single data series of barchart
+ */
 typedef struct sgl_barchart_series {
     const int32_t *y_data;
     const char    *label;
@@ -68,6 +111,9 @@ typedef struct sgl_barchart_series {
     uint8_t        alpha;
 } sgl_barchart_series_t;
 
+/**
+ * @brief Bar chart widget object
+ */
 typedef struct sgl_barchart {
     sgl_obj_t              obj;
     uint8_t                alpha;
@@ -87,12 +133,7 @@ typedef struct sgl_barchart {
     int16_t                layout_bottom_margin;
     uint8_t                bar_gap;
     uint8_t                category_gap;
-    uint8_t                custom_plot_rect  : 1;
-    uint8_t                open_anim_enable  : 1;
-    uint8_t                open_anim_playing : 1;
-    uint8_t                orientation       : 1;
-    uint8_t                open_anim_dir     : 2;
-    uint8_t                reserved_flags    : 2;
+    uint8_t                options; /**< packed chart flags, orientation and animation state */
     uint16_t               open_anim_duration;
     uint32_t               open_anim_start_tick;
 #if (CONFIG_SGL_ANIMATION)
@@ -100,20 +141,64 @@ typedef struct sgl_barchart {
 #endif
 } sgl_barchart_t;
 
+/**
+ * @brief Create a barchart widget
+ * @param parent parent object
+ * @return barchart object
+ */
 sgl_obj_t *sgl_barchart_create(sgl_obj_t *parent);
+
+/**
+ * @brief Set series count and reallocate series array
+ * @param obj barchart object
+ * @param count desired series count
+ */
 void sgl_barchart_set_series_count(sgl_obj_t *obj, uint8_t count);
+
+/**
+ * @brief Bind Y data array for a series
+ * @param obj barchart object
+ * @param index series index
+ * @param y_data pointer to Y values array
+ * @param point_count number of points in the series
+ */
 void sgl_barchart_set_series_y_array(sgl_obj_t *obj, uint8_t index,
                                      const int32_t *y_data,
                                      uint16_t point_count);
+
+/**
+ * @brief Set X axis label string array
+ * @param obj barchart object
+ * @param labels pointer to persistent label strings
+ * @param count number of labels
+ */
 void sgl_barchart_set_x_labels(sgl_obj_t *obj, const char **labels, uint8_t count);
+
+/**
+ * @brief Request chart redraw with current data
+ * @param obj barchart object
+ */
 void sgl_barchart_update(sgl_obj_t *obj);
+
+/**
+ * @brief Update one value in-place and request redraw
+ * @param obj barchart object
+ * @param series_index series index
+ * @param point_index point index inside the series
+ */
 void sgl_barchart_update_value(sgl_obj_t *obj, uint8_t series_index, uint16_t point_index);
 
+/**
+ * @brief Get axis configuration by axis id
+ */
 static inline sgl_barchart_axis_t *sgl_barchart_get_axis(sgl_barchart_t *chart, sgl_barchart_axis_id_t axis)
 {
     return (axis == SGL_BARCHART_AXIS_Y) ? &chart->y_axis : &chart->x_axis;
 }
 
+/**
+ * @brief Set axis range and disable auto scale
+ */
 static inline void sgl_barchart_set_axis_range(sgl_obj_t *obj, sgl_barchart_axis_id_t axis,
                                                int32_t min, int32_t max)
 {
@@ -122,18 +207,24 @@ static inline void sgl_barchart_set_axis_range(sgl_obj_t *obj, sgl_barchart_axis
     sgl_barchart_axis_t *a = sgl_barchart_get_axis(chart, axis);
     a->min = min;
     a->max = max;
-    a->auto_scale = 0;
+    SGL_BARCHART_AXIS_SET(a, SGL_BARCHART_AXIS_FLAG_AUTO_SCALE, false);
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Enable or disable axis auto scale
+ */
 static inline void sgl_barchart_enable_axis_auto_scale(sgl_obj_t *obj, sgl_barchart_axis_id_t axis, bool enable)
 {
     SGL_ASSERT(obj != NULL);
     sgl_barchart_t *chart = sgl_container_of(obj, sgl_barchart_t, obj);
-    sgl_barchart_get_axis(chart, axis)->auto_scale = (uint8_t)enable;
+    SGL_BARCHART_AXIS_SET(sgl_barchart_get_axis(chart, axis), SGL_BARCHART_AXIS_FLAG_AUTO_SCALE, enable);
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set axis tick step
+ */
 static inline void sgl_barchart_set_axis_step(sgl_obj_t *obj, sgl_barchart_axis_id_t axis, int32_t step)
 {
     SGL_ASSERT(obj != NULL);
@@ -142,6 +233,9 @@ static inline void sgl_barchart_set_axis_step(sgl_obj_t *obj, sgl_barchart_axis_
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set auto division count used when step is zero
+ */
 static inline void sgl_barchart_set_axis_auto_divisions(sgl_obj_t *obj, sgl_barchart_axis_id_t axis, uint8_t divisions)
 {
     SGL_ASSERT(obj != NULL);
@@ -150,22 +244,32 @@ static inline void sgl_barchart_set_axis_auto_divisions(sgl_obj_t *obj, sgl_barc
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Enable or disable axis grid lines
+ */
 static inline void sgl_barchart_enable_axis_grid(sgl_obj_t *obj, sgl_barchart_axis_id_t axis, bool enable)
 {
     SGL_ASSERT(obj != NULL);
     sgl_barchart_t *chart = sgl_container_of(obj, sgl_barchart_t, obj);
-    sgl_barchart_get_axis(chart, axis)->show_grid = (uint8_t)enable;
+    SGL_BARCHART_AXIS_SET(sgl_barchart_get_axis(chart, axis), SGL_BARCHART_AXIS_FLAG_SHOW_GRID, enable);
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set axis grid style
+ * @param dashed 0: solid, non-zero: dashed
+ */
 static inline void sgl_barchart_set_axis_grid_style(sgl_obj_t *obj, sgl_barchart_axis_id_t axis, uint8_t dashed)
 {
     SGL_ASSERT(obj != NULL);
     sgl_barchart_t *chart = sgl_container_of(obj, sgl_barchart_t, obj);
-    sgl_barchart_get_axis(chart, axis)->grid_dashed = dashed ? 1 : 0;
+    SGL_BARCHART_AXIS_SET(sgl_barchart_get_axis(chart, axis), SGL_BARCHART_AXIS_FLAG_GRID_DASHED, dashed != 0U);
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set axis grid color and alpha
+ */
 static inline void sgl_barchart_set_axis_grid_color(sgl_obj_t *obj, sgl_barchart_axis_id_t axis,
                                                     sgl_color_t color, uint8_t alpha)
 {
@@ -177,14 +281,20 @@ static inline void sgl_barchart_set_axis_grid_color(sgl_obj_t *obj, sgl_barchart
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Enable or disable axis labels
+ */
 static inline void sgl_barchart_enable_axis_labels(sgl_obj_t *obj, sgl_barchart_axis_id_t axis, bool enable)
 {
     SGL_ASSERT(obj != NULL);
     sgl_barchart_t *chart = sgl_container_of(obj, sgl_barchart_t, obj);
-    sgl_barchart_get_axis(chart, axis)->show_labels = (uint8_t)enable;
+    SGL_BARCHART_AXIS_SET(sgl_barchart_get_axis(chart, axis), SGL_BARCHART_AXIS_FLAG_SHOW_LABELS, enable);
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set axis label font
+ */
 static inline void sgl_barchart_set_axis_label_font(sgl_obj_t *obj, sgl_barchart_axis_id_t axis,
                                                     const sgl_font_t *font)
 {
@@ -194,6 +304,9 @@ static inline void sgl_barchart_set_axis_label_font(sgl_obj_t *obj, sgl_barchart
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set axis label text color and alpha
+ */
 static inline void sgl_barchart_set_axis_label_color(sgl_obj_t *obj, sgl_barchart_axis_id_t axis,
                                                      sgl_color_t color, uint8_t alpha)
 {
@@ -205,14 +318,20 @@ static inline void sgl_barchart_set_axis_label_color(sgl_obj_t *obj, sgl_barchar
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Enable or disable axis tick marks at chart edge
+ */
 static inline void sgl_barchart_enable_axis_ticks(sgl_obj_t *obj, sgl_barchart_axis_id_t axis, bool enable)
 {
     SGL_ASSERT(obj != NULL);
     sgl_barchart_t *chart = sgl_container_of(obj, sgl_barchart_t, obj);
-    sgl_barchart_get_axis(chart, axis)->show_ticks = (uint8_t)enable;
+    SGL_BARCHART_AXIS_SET(sgl_barchart_get_axis(chart, axis), SGL_BARCHART_AXIS_FLAG_SHOW_TICKS, enable);
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set chart background color
+ */
 static inline void sgl_barchart_set_bg_color(sgl_obj_t *obj, sgl_color_t color)
 {
     SGL_ASSERT(obj != NULL);
@@ -220,6 +339,9 @@ static inline void sgl_barchart_set_bg_color(sgl_obj_t *obj, sgl_color_t color)
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set chart background alpha
+ */
 static inline void sgl_barchart_set_bg_alpha(sgl_obj_t *obj, uint8_t alpha)
 {
     SGL_ASSERT(obj != NULL);
@@ -227,6 +349,9 @@ static inline void sgl_barchart_set_bg_alpha(sgl_obj_t *obj, uint8_t alpha)
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set chart border color
+ */
 static inline void sgl_barchart_set_border_color(sgl_obj_t *obj, sgl_color_t color)
 {
     SGL_ASSERT(obj != NULL);
@@ -234,6 +359,9 @@ static inline void sgl_barchart_set_border_color(sgl_obj_t *obj, sgl_color_t col
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set global chart alpha
+ */
 static inline void sgl_barchart_set_alpha(sgl_obj_t *obj, uint8_t alpha)
 {
     SGL_ASSERT(obj != NULL);
@@ -241,6 +369,16 @@ static inline void sgl_barchart_set_alpha(sgl_obj_t *obj, uint8_t alpha)
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set custom plot area relative to widget top-left
+ *
+ * @param offset_left distance from widget left edge to plot left edge
+ * @param offset_top distance from widget top edge to plot top edge
+ * @param width plot width in pixels
+ * @param height plot height in pixels
+ *
+ * When width or height is not positive, the plot area falls back to auto layout.
+ */
 static inline void sgl_barchart_set_plot_area_rel(sgl_obj_t *obj,
                                                   int16_t offset_left,
                                                   int16_t offset_top,
@@ -250,7 +388,7 @@ static inline void sgl_barchart_set_plot_area_rel(sgl_obj_t *obj,
     SGL_ASSERT(obj != NULL);
     sgl_barchart_t *chart = sgl_container_of(obj, sgl_barchart_t, obj);
     if (width <= 0 || height <= 0) {
-        chart->custom_plot_rect = 0;
+        SGL_BARCHART_SET(chart, SGL_BARCHART_FLAG_CUSTOM_PLOT_RECT, false);
         sgl_obj_set_dirty(obj);
         return;
     }
@@ -258,17 +396,23 @@ static inline void sgl_barchart_set_plot_area_rel(sgl_obj_t *obj,
     chart->plot_rel_rect.y1 = offset_top;
     chart->plot_rel_rect.x2 = (int16_t)(offset_left + width - 1);
     chart->plot_rel_rect.y2 = (int16_t)(offset_top + height - 1);
-    chart->custom_plot_rect = 1;
+    SGL_BARCHART_SET(chart, SGL_BARCHART_FLAG_CUSTOM_PLOT_RECT, true);
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Reset plot area to auto layout
+ */
 static inline void sgl_barchart_reset_plot_area(sgl_obj_t *obj)
 {
     SGL_ASSERT(obj != NULL);
-    sgl_container_of(obj, sgl_barchart_t, obj)->custom_plot_rect = 0;
+    SGL_BARCHART_SET(sgl_container_of(obj, sgl_barchart_t, obj), SGL_BARCHART_FLAG_CUSTOM_PLOT_RECT, false);
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set auto layout paddings around the plot area
+ */
 static inline void sgl_barchart_set_layout_padding(sgl_obj_t *obj,
                                                    int16_t left,
                                                    int16_t top,
@@ -281,10 +425,14 @@ static inline void sgl_barchart_set_layout_padding(sgl_obj_t *obj,
     chart->layout_top_margin = top;
     chart->layout_right_margin = right;
     chart->layout_bottom_margin = bottom;
-    chart->custom_plot_rect = 0;
+    SGL_BARCHART_SET(chart, SGL_BARCHART_FLAG_CUSTOM_PLOT_RECT, false);
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set series fill color and alpha
+ * @param index series index
+ */
 static inline void sgl_barchart_set_series_color(sgl_obj_t *obj, uint8_t index,
                                                  sgl_color_t color, uint8_t alpha)
 {
@@ -299,6 +447,11 @@ static inline void sgl_barchart_set_series_color(sgl_obj_t *obj, uint8_t index,
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set series label text
+ * @param index series index
+ * @param label persistent zero-terminated string
+ */
 static inline void sgl_barchart_set_series_label(sgl_obj_t *obj, uint8_t index, const char *label)
 {
     SGL_ASSERT(obj != NULL);
@@ -311,6 +464,11 @@ static inline void sgl_barchart_set_series_label(sgl_obj_t *obj, uint8_t index, 
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set spacing between bars and categories
+ * @param bar_gap gap between adjacent bars within one category
+ * @param category_gap gap between two categories
+ */
 static inline void sgl_barchart_set_bar_spacing(sgl_obj_t *obj, uint8_t bar_gap, uint8_t category_gap)
 {
     SGL_ASSERT(obj != NULL);
@@ -320,30 +478,43 @@ static inline void sgl_barchart_set_bar_spacing(sgl_obj_t *obj, uint8_t bar_gap,
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set chart orientation
+ */
 static inline void sgl_barchart_set_orientation(sgl_obj_t *obj, sgl_barchart_orientation_t orientation)
 {
     SGL_ASSERT(obj != NULL);
     sgl_barchart_t *chart = sgl_container_of(obj, sgl_barchart_t, obj);
-    chart->orientation = (uint8_t)orientation;
+    SGL_BARCHART_SET_ORIENTATION(chart, orientation);
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Enable or disable one-shot open animation
+ */
 static inline void sgl_barchart_enable_open_anim(sgl_obj_t *obj, bool enable)
 {
     SGL_ASSERT(obj != NULL);
     sgl_barchart_t *chart = sgl_container_of(obj, sgl_barchart_t, obj);
-    chart->open_anim_enable = (uint8_t)enable;
-    chart->open_anim_playing = 0;
+    SGL_BARCHART_SET(chart, SGL_BARCHART_FLAG_OPEN_ANIM_ENABLE, enable);
+    SGL_BARCHART_SET(chart, SGL_BARCHART_FLAG_OPEN_ANIM_PLAYING, false);
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set open animation direction
+ */
 static inline void sgl_barchart_set_open_anim_dir(sgl_obj_t *obj, sgl_barchart_open_anim_dir_t dir)
 {
     SGL_ASSERT(obj != NULL);
-    sgl_container_of(obj, sgl_barchart_t, obj)->open_anim_dir = (uint8_t)dir;
+    SGL_BARCHART_SET_OPEN_ANIM_DIR(sgl_container_of(obj, sgl_barchart_t, obj), dir);
     sgl_obj_set_dirty(obj);
 }
 
+/**
+ * @brief Set open animation duration in milliseconds
+ * @param duration 0 uses default duration
+ */
 static inline void sgl_barchart_set_open_anim_duration(sgl_obj_t *obj, uint16_t duration)
 {
     SGL_ASSERT(obj != NULL);
@@ -352,6 +523,10 @@ static inline void sgl_barchart_set_open_anim_duration(sgl_obj_t *obj, uint16_t 
 }
 
 #if (CONFIG_SGL_ANIMATION)
+/**
+ * @brief Set open animation easing path algorithm
+ * @param path_algo easing function pointer, NULL means linear animation
+ */
 static inline void sgl_barchart_set_open_anim_path(sgl_obj_t *obj, sgl_anim_path_algo_t path_algo)
 {
     SGL_ASSERT(obj != NULL);
