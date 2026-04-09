@@ -98,9 +98,6 @@ typedef struct sgl_piechart_slice {
  */
 typedef struct sgl_piechart {
     sgl_obj_t              obj;
-    /* global pie config */
-    sgl_piechart_option_bits_t option_bits;
-    sgl_piechart_layout_bits_t layout_bits;
     const sgl_font_t *legend_font;     /**< legend text font */
     sgl_piechart_slice_t *slices;      /**< dynamic slice array */
 #if (CONFIG_SGL_ANIMATION)
@@ -114,6 +111,9 @@ typedef struct sgl_piechart {
     uint16_t          radius_out;          /**< outer radius in pixels, 0: auto from object size */
     int16_t           start_angle;         /**< start angle of first slice, unit: degree */
     uint16_t          legend_area_size;    /**< thickness of legend area (width or height) */
+    /* global pie config */
+    sgl_piechart_option_bits_t option_bits;
+    sgl_piechart_layout_bits_t layout_bits;
     uint8_t     inner_radius_rate; /**< inner radius = outer * rate / 100, 0: full pie */
     uint8_t     legend_box_size;   /**< legend color box size in pixels */
     uint8_t     legend_item_gap;   /**< gap between legend items in pixels */

@@ -101,7 +101,6 @@ typedef struct sgl_barchart {
     sgl_barchart_axis_t    x_axis;
     sgl_barchart_axis_t    y_axis;
     sgl_area_t             plot_rel_rect;
-    sgl_barchart_option_bits_t option_bits; /**< packed chart flags, orientation and animation state */
     sgl_barchart_series_t *series;
     const char           **x_labels;
 #if (CONFIG_SGL_ANIMATION)
@@ -115,6 +114,7 @@ typedef struct sgl_barchart {
     int16_t                layout_right_margin;
     int16_t                layout_bottom_margin;
     uint16_t               open_anim_duration;
+    sgl_barchart_option_bits_t option_bits; /**< packed chart flags, orientation and animation state */
     uint8_t                alpha;
     uint8_t                bg_alpha;
     uint8_t                series_count;

@@ -195,7 +195,6 @@ typedef struct sgl_linechart {
     sgl_linechart_axis_t  x_axis;
     sgl_linechart_axis_t  y_axis;
     sgl_area_t            plot_rel_rect;   /**< Custom plot area relative to widget (x1,y1,x2,y2) */
-    sgl_linechart_option_bits_t option_bits;   /**< packed plot/layout/animation flags */
     sgl_linechart_series_t *series;
     const char           **x_labels;       /**< Optional X axis labels, array of persistent strings */
 #if (CONFIG_SGL_ANIMATION)
@@ -204,6 +203,7 @@ typedef struct sgl_linechart {
     sgl_color_t           bg_color;
     sgl_color_t           border_color;
     uint32_t              open_anim_start_tick;
+    sgl_linechart_option_bits_t option_bits;   /**< packed plot/layout/animation flags */
     uint8_t               alpha;
     uint8_t               bg_alpha;
     uint8_t               series_count;
