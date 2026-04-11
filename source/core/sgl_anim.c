@@ -146,6 +146,12 @@ void sgl_anim_start(sgl_anim_t *anim, uint32_t repeat_cnt)
         sgl_anim_add(anim);
         anim->finished = 0;
     }
+
+    if (anim->act_duration == 0) {
+        SGL_LOG_WARN("animation duration is 0, you must set animation duration larger than 0");
+        return;
+    }
+
     anim->act_time = sgl_tick_get() + anim->act_delay;
     anim->repeat_cnt = repeat_cnt & SGL_ANIM_REPEAT_LOOP;
     anim->last_value = anim->start_value;
@@ -258,7 +264,7 @@ int32_t sgl_anim_path_linear(uint16_t elaps, uint16_t duration, int32_t start, i
     int64_t progress_fixed, delta, result;
 
     // If duration is zero or elapsed time exceeds duration, return end value
-    if (duration == 0 || elaps >= duration) {
+    if (elaps >= duration) {
         return (int32_t)end;
     }
 
