@@ -43,10 +43,10 @@ static void sgl_arc_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_event_t *
         arc->desc.cy = (obj->coords.y2 + obj->coords.y1) / 2;
 
         if(arc->desc.start_angle == 0 && arc->desc.end_angle == 360) {
-            sgl_draw_fill_ring(surf, &arc->obj.area, arc->desc.cx, arc->desc.cy, arc->desc.radius_in, arc->desc.radius_out, arc->desc.color, arc->desc.alpha);
+            sgl_draw_fill_ring(surf, &obj->area, arc->desc.cx, arc->desc.cy, arc->desc.radius_in, arc->desc.radius_out, arc->desc.color, arc->desc.alpha);
         }
         else {
-            sgl_draw_fill_arc(surf, &arc->obj.area, &arc->desc);
+            sgl_draw_fill_arc(surf, &obj->area, &arc->desc);
         }
     }
     else if(evt->type == SGL_EVENT_PRESSED ||
