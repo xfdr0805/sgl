@@ -121,8 +121,8 @@ void sgl_ring_set_alpha(sgl_obj_t *obj, uint8_t alpha)
 void sgl_ring_set_radius(sgl_obj_t *obj, uint16_t radius_in, uint16_t radius_out)
 {
     sgl_ring_t *ring = sgl_container_of(obj, sgl_ring_t, obj);
+    obj->radius > 0 ? sgl_obj_size_zoom(obj, radius_out - obj->radius) : 0;
     ring->radius_in = radius_in;
-    sgl_obj_set_radius(obj, radius_out);
-    ring->radius_out = obj->radius;
+    ring->radius_out = obj->radius = radius_out;
     sgl_obj_set_dirty(obj);
 }

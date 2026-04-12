@@ -58,15 +58,8 @@ static void sgl_arc_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_event_t *
             arc->desc.end_angle = tb_angle;
         }
 
-        if(obj->event_fn) {
-            obj->event_fn(evt);
-        }
         sgl_obj_set_dirty(obj);
-    }
-    else if(evt->type == SGL_EVENT_RELEASED) {
-        if(obj->event_fn) {
-            obj->event_fn(evt);
-        }
+        SGL_LOG_INFO("sgl_arc_construct_cb: x1 = %d, x2 = %d, y1 = %d, y2 = %d, %d", obj->area.x1, obj->area.x2, obj->area.y1, obj->area.y2, arc->desc.end_angle);
     }
     else if(SGL_EVENT_DRAW_INIT) {
         if(arc->desc.radius_out < 0) {
@@ -167,9 +160,9 @@ void sgl_arc_set_alpha(sgl_obj_t *obj, uint8_t alpha)
 void sgl_arc_set_radius(sgl_obj_t *obj, int16_t radius_in, int16_t radius_out)
 {
     sgl_arc_t *arc = sgl_container_of(obj, sgl_arc_t, obj);
-    sgl_obj_size_zoom(obj, radius_out - arc->desc.radius_out);
+    obj->radius > 0 ? sgl_obj_size_zoom(obj, radius_out - obj->radius) : 0;
     arc->desc.radius_in = radius_in;
-    arc->desc.radius_out = radius_out;
+    arc->desc.radius_out = obj->radius = radius_out;
     sgl_obj_set_dirty(obj);
 }
 
