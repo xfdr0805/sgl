@@ -168,7 +168,6 @@ void sgl_2dball_set_alpha(sgl_obj_t *obj, uint8_t alpha)
  */
 void sgl_2dball_set_radius(sgl_obj_t *obj, uint16_t radius)
 {
-    obj->radius > 0 ? sgl_obj_size_zoom(obj, radius - obj->radius) : 0;
-    obj->radius = sgl_is_odd(radius) ? radius : radius - 1;;
+    sgl_obj_set_circle_radius(obj, radius);
     sgl_obj_set_dirty(obj);
 }
