@@ -1646,10 +1646,10 @@ void sgl_obj_set_layout(sgl_obj_t *obj, sgl_layout_desc_t *desc)
 static inline void dirty_area_trace(sgl_surf_t *surf)
 {
     sgl_area_t frame = {
-        .x1 = surf->x1 - 1,
-        .x2 = surf->x2 + 1,
-        .y1 = surf->y1 - 1,
-        .y2 = surf->y2 + 1,
+        .x1 = surf->x1,
+        .x2 = surf->x2,
+        .y1 = surf->y1,
+        .y2 = surf->y2,
     };
     sgl_draw_wireframe(surf, &frame, surf->dirty, 1, SGL_DIRTY_AREA_TRACE_COLOR, SGL_ALPHA_MAX);
 }
