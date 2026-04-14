@@ -116,7 +116,6 @@ void sgl_draw_xform_surf(sgl_surf_t *dst, sgl_surf_t *src, sgl_area_t *area, int
     const int16_t half_w = src->w / 2;
     const int16_t half_h = src->h / 2;
 
-    // 计算旋转后四个顶点的位置
     const int16_t x1r = (cos_val * (-half_w) - sin_val * (-half_h)) / SGL_SIN_FIXED_ONE;
     const int16_t y1r = (sin_val * (-half_w) + cos_val * (-half_h)) / SGL_SIN_FIXED_ONE;
 
@@ -129,13 +128,11 @@ void sgl_draw_xform_surf(sgl_surf_t *dst, sgl_surf_t *src, sgl_area_t *area, int
     const int16_t x4r = (cos_val * (-half_w) - sin_val * half_h) / SGL_SIN_FIXED_ONE;
     const int16_t y4r = (sin_val * (-half_w) + cos_val * half_h) / SGL_SIN_FIXED_ONE;
 
-    // 确定目标区域的包围盒
     const int16_t min_x = sgl_min4(x1r, x2r, x3r, x4r);
     const int16_t min_y = sgl_min4(y1r, y2r, y3r, y4r);
     const int16_t max_x = sgl_max4(x1r, x2r, x3r, x4r);
     const int16_t max_y = sgl_max4(y1r, y2r, y3r, y4r);
 
-    // 旋转中心
     const int16_t center_x = x + half_w;
     const int16_t center_y = y + half_h;
 
@@ -146,42 +143,29 @@ void sgl_draw_xform_surf(sgl_surf_t *dst, sgl_surf_t *src, sgl_area_t *area, int
         return;
     }
 
-    // 遍历目标区域的每个像素
     for (int py = min_y; py <= max_y; py++) {
         for (int px = min_x; px <= max_x; px++) {
-            // 计算目标像素在目标表面上的实际坐标
             const int dst_x = center_x + px;
             const int dst_y = center_y + py;
-
-            // 检查目标坐标是否在有效范围内
             if (dst_x < area->x1 || dst_x > area->x2 || dst_y < area->y1 || dst_y > area->y2 ||
                 dst_x < dst->x1 || dst_x > dst->x2 || dst_y < dst->y1 || dst_y > dst->y2) {
                 continue;
             }
 
-            // 计算相对于旋转中心的坐标
             int32_t rel_x = px;
             int32_t rel_y = py;
 
-            // 应用逆旋转：从目标坐标反推到源图像坐标
-            // 使用标准旋转矩阵的逆矩阵（逆矩阵等于转置矩阵）
             int32_t orig_x_fixed = cos_val * rel_x + sin_val * rel_y;
             int32_t orig_y_fixed = -sin_val * rel_x + cos_val * rel_y;
 
-            // 转换为源图像坐标（固定点格式）
             int32_t src_x = (orig_x_fixed / SGL_SIN_FIXED_ONE) + half_w;
             int32_t src_y = (orig_y_fixed / SGL_SIN_FIXED_ONE) + half_h;
 
-            // 转换为固定点坐标，用于双线性插值
             int32_t src_x_fp = src_x << SGL_FIXED_SHIFT;
             int32_t src_y_fp = src_y << SGL_FIXED_SHIFT;
 
-            // 检查源坐标是否在有效范围内（考虑双线性插值需要2x2像素）
             if (src_x >= 0 && src_x < buf_width - 1 && src_y >= 0 && src_y < buf_height - 1) {
-                // 使用双线性插值计算像素颜色
                 sgl_color_t color = sgl_draw_biln_color(src->buffer, NULL, buf_width, buf_height, src_x_fp, src_y_fp);
-                
-                // 计算目标缓冲区索引
                 int dst_idx = (dst_y - dst->y1) * dst->w + (dst_x - dst->x1);
                 dst->buffer[dst_idx] = color;
             }
