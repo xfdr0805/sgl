@@ -50,11 +50,6 @@ static void sgl_circle_construct_cb(sgl_surf_t *surf, sgl_obj_t* obj, sgl_event_
 
         sgl_draw_circle(surf, &obj->area, &circle->desc);
     }
-    else if(evt->type == SGL_EVENT_DRAW_INIT) {
-        if(circle->desc.radius == -1) {
-            circle->desc.radius = (circle->obj.coords.y2 - circle->obj.coords.y1) / 2;
-        }
-    }
 }
 
 
@@ -79,8 +74,6 @@ sgl_obj_t* sgl_circle_create(sgl_obj_t* parent)
     obj->construct_fn = sgl_circle_construct_cb;
     sgl_obj_set_border_width(obj, SGL_THEME_BORDER_WIDTH);
 
-    obj->needinit = 1;
-
     circle->desc.alpha = SGL_ALPHA_MAX;
     circle->desc.color = SGL_THEME_COLOR;
     circle->desc.pixmap = NULL;
@@ -88,7 +81,6 @@ sgl_obj_t* sgl_circle_create(sgl_obj_t* parent)
     circle->desc.border_color = SGL_THEME_BORDER_COLOR;
     circle->desc.cx = -1;
     circle->desc.cy = -1;
-    circle->desc.radius = -1;
 
     return obj;
 }
@@ -116,7 +108,7 @@ void sgl_circle_set_radius(sgl_obj_t *obj, uint16_t radius)
 {
     sgl_circle_t *circle = sgl_container_of(obj, sgl_circle_t, obj);
     obj->radius > 0 ? sgl_obj_size_zoom(obj, radius - obj->radius) : 0;
-    circle->desc.radius = obj->radius = radius;
+    circle->desc.radius = obj->radius = sgl_is_odd(radius) ? radius : radius - 1;
     sgl_obj_set_dirty(obj);
 }
 

@@ -1639,23 +1639,6 @@ void sgl_obj_set_layout(sgl_obj_t *obj, sgl_layout_desc_t *desc)
 
 
 /**
- * @brief draw the dirty area wireframe
- * @param surf surface that draw to
- * @return none
- */
-static inline void dirty_area_trace(sgl_surf_t *surf)
-{
-    sgl_area_t frame = {
-        .x1 = surf->x1 - 1,
-        .x2 = surf->x2 + 1,
-        .y1 = surf->y1 - 1,
-        .y2 = surf->y2 + 1,
-    };
-    sgl_draw_wireframe(surf, &frame, surf->dirty, 1, SGL_DIRTY_AREA_TRACE_COLOR, SGL_ALPHA_MAX);
-}
-
-
-/**
  * @brief draw object slice completely
  * @param obj it should point to active root object
  * @param surf surface that draw to
@@ -1693,7 +1676,7 @@ static inline void draw_obj_slice(sgl_obj_t *obj, sgl_surf_t *surf)
     }
 
 #if (CONFIG_SGL_DIRTY_AREA_TRACE)
-    dirty_area_trace(surf);
+    sgl_draw_wireframe(surf, (sgl_area_t*)surf, surf->dirty, 1, SGL_DIRTY_AREA_TRACE_COLOR, SGL_ALPHA_MAX);
 #endif
     /* flush dirty area into screen */
     sgl_fbdev_flush_area((sgl_area_t*)surf, surf->buffer);
